@@ -1,0 +1,1094 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <meta property="og:title" content="Bio-Sorter: Expert Mode" />
+    <meta
+      property="og:description"
+      content="Master Biomedical Waste Management. Sort waste and select treatment methods!"
+    />
+    <meta
+      property="og:image"
+      content="https://img.icons8.com/color/480/biohazard.png"
+    />
+
+    <title>Bio-Sorter: Expert Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap");
+
+      body {
+        font-family: "Inter", sans-serif;
+        touch-action: none; /* Prevents browser zooming/scrolling gestures */
+        background-color: #f0f9ff;
+        overflow: hidden;
+        user-select: none;
+        -webkit-user-select: none;
+        /* Fix for mobile browser height issues */
+        height: 100vh;
+        height: 100dvh;
+      }
+
+      /* Safe Area Padding for iPhones */
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 20px);
+      }
+
+      /* Hover Effects */
+      .bin-container,
+      .treatment-container {
+        transition: transform 0.1s;
+      }
+      .bin-container.hovered,
+      .treatment-container.hovered {
+        transform: scale(1.05);
+        filter: brightness(1.1);
+        z-index: 20;
+      }
+
+      .waste-item {
+        cursor: grab;
+        touch-action: none;
+        filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15));
+        will-change: transform;
+        z-index: 50;
+        position: absolute;
+      }
+      .waste-item:active {
+        cursor: grabbing;
+        transform: scale(1.1);
+      }
+
+      /* Colors */
+      .bg-bin-yellow {
+        background: #fcd34d;
+        border-bottom: 6px solid #d97706;
+      }
+      .bg-bin-red {
+        background: #ef4444;
+        border-bottom: 6px solid #991b1b;
+      }
+      .bg-bin-white {
+        background: #f3f4f6;
+        border: 2px solid #9ca3af;
+        border-bottom: 6px solid #9ca3af;
+        opacity: 0.95;
+      }
+      .bg-bin-blue {
+        background: #3b82f6;
+        border-bottom: 6px solid #1e3a8a;
+      }
+
+      /* Treatment Facility Colors - 6 Options */
+      .bg-treat-incin {
+        background: #1f2937;
+        border-bottom: 4px solid #000;
+        color: #fcd34d;
+      }
+      .bg-treat-chem {
+        background: #059669;
+        border-bottom: 4px solid #065f46;
+        color: white;
+      }
+      .bg-treat-auto {
+        background: #dc2626;
+        border-bottom: 4px solid #991b1b;
+        color: white;
+      }
+      .bg-treat-micro {
+        background: #7c3aed;
+        border-bottom: 4px solid #5b21b6;
+        color: white;
+      }
+      .bg-treat-land {
+        background: #78350f;
+        border-bottom: 4px solid #451a03;
+        color: white;
+      }
+      .bg-treat-inert {
+        background: #57534e;
+        border-bottom: 4px solid #292524;
+        color: white;
+      }
+
+      /* Floating Text */
+      @keyframes floatUp {
+        0% {
+          transform: translateY(0) scale(1);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-60px) scale(1.2);
+          opacity: 0;
+        }
+      }
+      .float-text {
+        position: fixed;
+        pointer-events: none;
+        animation: floatUp 0.8s ease-out forwards;
+        z-index: 100;
+        font-weight: 900;
+        text-shadow: 2px 2px 0 #fff;
+        text-align: center;
+        width: 200px;
+        margin-left: -100px;
+      }
+
+      /* Scrollbar */
+      #mistakes-log::-webkit-scrollbar {
+        width: 6px;
+      }
+      #mistakes-log::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      #mistakes-log::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body class="flex flex-col relative">
+    <div
+      id="landing-page"
+      class="min-h-screen flex items-center justify-center"
+    >
+      <div class="bg-white p-10 rounded-3xl shadow-2xl text-center">
+        <!-- Image -->
+        <img
+          src="./company-logo.jpg"
+          alt="Landing Image"
+          class="w-64 md:w-96 mx-auto object-contain"
+        />
+      </div>
+    </div>
+    <!-- Header / HUD -->
+    <div
+      class="flex justify-between items-center px-4 py-2 bg-white shadow-sm shrink-0 h-16 border-b border-gray-200 z-30"
+    >
+      <div class="flex flex-col">
+        <span
+          class="text-[9px] text-gray-400 uppercase font-bold tracking-wider"
+          >Score</span
+        >
+        <span
+          id="score-display"
+          class="text-3xl font-black text-gray-800 leading-none"
+          >0</span
+        >
+      </div>
+
+      <div
+        class="flex flex-col items-center justify-center bg-gray-100 rounded-lg px-4 py-1"
+      >
+        <span
+          class="text-[9px] text-gray-500 font-bold uppercase tracking-wider"
+          >Time</span
+        >
+        <span
+          id="time-text"
+          class="text-xl font-black text-indigo-600 font-mono"
+          >90s</span
+        >
+      </div>
+
+      <div class="flex gap-2">
+        <button
+          onclick="showHint()"
+          class="w-10 h-10 rounded-full bg-yellow-50 hover:bg-yellow-100 flex items-center justify-center text-yellow-600 transition"
+          title="Hint"
+        >
+          <i class="fas fa-lightbulb"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Game Area -->
+    <div
+      id="game-area"
+      class="flex-grow relative bg-slate-50 overflow-hidden z-10"
+    >
+      <!-- Phase Indicator -->
+      <div
+        id="phase-indicator"
+        class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black/10 px-3 py-1 rounded-full text-xs font-bold text-gray-500 uppercase tracking-widest hidden z-0"
+      >
+        Phase 1: Gravity Sort
+      </div>
+
+      <!-- The Waste Item (Phase 1) -->
+      <div
+        id="draggable-item"
+        class="waste-item flex flex-col items-center justify-center w-28 h-28 hidden bg-white/90 backdrop-blur-sm rounded-full border-4 border-white shadow-xl"
+      >
+        <div
+          id="item-icon"
+          class="text-5xl mb-1 drop-shadow-sm select-none pointer-events-none"
+        >
+          📦
+        </div>
+        <div
+          id="item-name"
+          class="text-[9px] font-extrabold text-center bg-gray-800 text-white px-2 py-0.5 rounded-full shadow max-w-[110px] leading-tight z-10 pointer-events-none"
+        >
+          Name
+        </div>
+      </div>
+
+      <!-- The Treatment Bag (Phase 2) -->
+      <div
+        id="treatment-bag"
+        class="waste-item flex flex-col items-center justify-center w-24 h-32 hidden"
+      >
+        <i id="bag-icon" class="fas fa-trash-alt text-6xl drop-shadow-xl"></i>
+        <div
+          id="bag-label"
+          class="mt-2 bg-white/90 text-xs font-bold px-2 py-1 rounded shadow text-center"
+        >
+          Bag
+        </div>
+      </div>
+    </div>
+
+    <!-- BINS AREA (Phase 1) -->
+    <div
+      id="bins-container"
+      class="h-[25vh] min-h-[140px] w-full bg-gray-100 grid grid-cols-4 gap-1 p-1 shrink-0 pb-safe border-t border-gray-200 z-30 relative"
+    >
+      <!-- Floor Line for Visual Reference -->
+      <div
+        class="absolute top-0 left-0 w-full h-1 bg-red-500/20 z-50 pointer-events-none animate-pulse"
+      ></div>
+
+      <div
+        class="bin-container relative flex flex-col items-center justify-end pb-3 rounded-t-lg shadow-inner overflow-hidden group bg-bin-yellow cursor-pointer"
+        data-color="yellow"
+      >
+        <i
+          class="fas fa-biohazard text-yellow-900/20 text-4xl absolute top-4"
+        ></i>
+        <div
+          class="bg-yellow-900/90 text-white font-bold text-[10px] px-2 py-0.5 rounded-full mb-1 z-10"
+        >
+          YELLOW
+        </div>
+      </div>
+      <div
+        class="bin-container relative flex flex-col items-center justify-end pb-3 rounded-t-lg shadow-inner overflow-hidden group bg-bin-red cursor-pointer"
+        data-color="red"
+      >
+        <i class="fas fa-recycle text-white/20 text-4xl absolute top-4"></i>
+        <div
+          class="bg-red-900/90 text-white font-bold text-[10px] px-2 py-0.5 rounded-full mb-1 z-10"
+        >
+          RED
+        </div>
+      </div>
+      <div
+        class="bin-container relative flex flex-col items-center justify-end pb-3 rounded-t-lg shadow-inner overflow-hidden group bg-bin-white cursor-pointer"
+        data-color="white"
+      >
+        <i
+          class="fas fa-exclamation-triangle text-gray-500/20 text-4xl absolute top-4"
+        ></i>
+        <div
+          class="bg-gray-600/90 text-white font-bold text-[10px] px-2 py-0.5 rounded-full mb-1 z-10"
+        >
+          WHITE
+        </div>
+      </div>
+      <div
+        class="bin-container relative flex flex-col items-center justify-end pb-3 rounded-t-lg shadow-inner overflow-hidden group bg-bin-blue cursor-pointer"
+        data-color="blue"
+      >
+        <i
+          class="fas fa-glass-martini-alt text-blue-900/20 text-4xl absolute top-4"
+        ></i>
+        <div
+          class="bg-blue-900/90 text-white font-bold text-[10px] px-2 py-0.5 rounded-full mb-1 z-10"
+        >
+          BLUE
+        </div>
+      </div>
+    </div>
+
+    <!-- TREATMENT AREA (Phase 2) -->
+    <div
+      id="treatment-facilities"
+      class="hidden h-[30vh] min-h-[180px] w-full bg-gray-800 grid grid-cols-3 grid-rows-2 gap-1 p-1 shrink-0 pb-safe border-t border-gray-700 z-30"
+    >
+      <div
+        class="treatment-container relative flex flex-col items-center justify-center rounded shadow-inner overflow-hidden group bg-treat-incin cursor-pointer"
+        data-target="incineration"
+      >
+        <i class="fas fa-fire text-yellow-500/40 text-2xl mb-1"></i>
+        <div class="text-[9px] font-bold text-center leading-tight">
+          INCINERATION
+        </div>
+      </div>
+      <div
+        class="treatment-container relative flex flex-col items-center justify-center rounded shadow-inner overflow-hidden group bg-treat-chem cursor-pointer"
+        data-target="chemical"
+      >
+        <i class="fas fa-flask text-white/40 text-2xl mb-1"></i>
+        <div class="text-[9px] font-bold text-center leading-tight">
+          CHEMICAL<br />DISINFECTION
+        </div>
+      </div>
+      <div
+        class="treatment-container relative flex flex-col items-center justify-center rounded shadow-inner overflow-hidden group bg-treat-auto cursor-pointer"
+        data-target="autoclave"
+      >
+        <i class="fas fa-temperature-high text-white/40 text-2xl mb-1"></i>
+        <div class="text-[9px] font-bold text-center leading-tight">
+          AUTOCLAVE<br />(Thermal)
+        </div>
+      </div>
+      <div
+        class="treatment-container relative flex flex-col items-center justify-center rounded shadow-inner overflow-hidden group bg-treat-micro cursor-pointer"
+        data-target="microwave"
+      >
+        <i class="fas fa-wave-square text-white/40 text-2xl mb-1"></i>
+        <div class="text-[9px] font-bold text-center leading-tight">
+          MICROWAVE
+        </div>
+      </div>
+      <div
+        class="treatment-container relative flex flex-col items-center justify-center rounded shadow-inner overflow-hidden group bg-treat-land cursor-pointer"
+        data-target="land"
+      >
+        <i class="fas fa-mountain text-white/40 text-2xl mb-1"></i>
+        <div class="text-[9px] font-bold text-center leading-tight">
+          LAND<br />DISPOSAL
+        </div>
+      </div>
+      <div
+        class="treatment-container relative flex flex-col items-center justify-center rounded shadow-inner overflow-hidden group bg-treat-inert cursor-pointer"
+        data-target="inertization"
+      >
+        <i class="fas fa-cube text-white/40 text-2xl mb-1"></i>
+        <div class="text-[9px] font-bold text-center leading-tight">
+          INERTIZATION
+        </div>
+      </div>
+    </div>
+
+    <!-- OVERLAYS -->
+    <div
+      id="start-screen"
+      class="hidden inset-0 bg-white/95 z-[60] flex flex-col items-center justify-center p-6 text-center"
+    >
+      <div
+        class="mb-3 p-3 bg-indigo-50 rounded-full w-20 h-20 flex items-center justify-center shadow-inner"
+      >
+        <span class="text-4xl">☣️</span>
+      </div>
+      <h1 class="text-3xl font-black text-gray-800 mb-1">Bio-Sorter</h1>
+      <h2
+        class="text-sm font-bold text-indigo-500 mb-8 uppercase tracking-widest"
+      >
+        Expert Mode
+      </h2>
+      <button
+        onclick="startGame()"
+        class="bg-indigo-600 text-white w-64 py-3 rounded-xl font-bold text-lg shadow-lg hover:bg-indigo-700 hover:-translate-y-1 transition cursor-pointer mb-4"
+      >
+        START GRAVITY
+      </button>
+      <button
+        onclick="showHint()"
+        class="text-gray-500 font-semibold text-sm hover:text-indigo-600 underline underline-offset-4 cursor-pointer"
+      >
+        View Game Rules
+      </button>
+    </div>
+
+    <div
+      id="phase2-screen"
+      class="hidden fixed inset-0 bg-gray-900/95 z-[60] flex flex-col items-center justify-center p-6 text-center text-white"
+    >
+      <h1 class="text-4xl font-black mb-2 text-yellow-400">Phase 2</h1>
+      <h2 class="text-2xl font-bold mb-6">Treatment Methods</h2>
+      <p class="text-gray-300 mb-8 max-w-xs mx-auto text-sm">
+        Sort exactly
+        <span class="text-white font-bold underline">4 Bags</span> in
+        <span class="text-yellow-400 font-bold">30 Seconds</span
+        >.<br /><br />Max Score:
+        <span class="text-green-400 font-bold">20 Points</span>
+      </p>
+      <button
+        onclick="startPhase2()"
+        class="bg-yellow-500 text-black w-64 py-3 rounded-xl font-bold text-lg shadow-lg hover:bg-yellow-400 transition cursor-pointer"
+      >
+        CONTINUE
+      </button>
+    </div>
+
+    <div
+      id="game-over-screen"
+      class="hidden fixed inset-0 bg-white/95 z-[60] flex flex-col items-center justify-center p-6 text-center"
+    >
+      <div id="final-smiley" class="text-6xl mb-2">😐</div>
+      <h2 class="text-3xl font-black text-gray-800 mb-2">Report Card</h2>
+
+      <div
+        class="bg-gray-50 border rounded-xl p-4 w-full max-w-xs mb-4 shadow-sm"
+      >
+        <div class="text-gray-400 text-xs font-bold uppercase mb-1">
+          Final Score
+        </div>
+        <div class="flex items-baseline justify-center gap-2">
+          <span class="text-5xl font-black text-indigo-600" id="final-score"
+            >0</span
+          >
+          <span class="text-xl text-gray-400 font-bold">/ 250</span>
+        </div>
+        <div
+          id="bonus-badge"
+          class="hidden mt-2 text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded"
+        >
+          ⚡ Time Bonus +30!
+        </div>
+      </div>
+
+      <div
+        class="w-full max-w-sm flex-grow mb-4 bg-gray-50 rounded-xl border p-4 text-left overflow-hidden flex flex-col"
+      >
+        <h3
+          class="font-bold text-gray-700 border-b pb-2 mb-2 text-sm uppercase tracking-wide"
+        >
+          Incorrect Selections
+        </h3>
+        <div
+          id="mistakes-log"
+          class="overflow-y-auto text-sm space-y-2 flex-grow pr-1"
+        ></div>
+      </div>
+      <button
+        onclick="location.reload()"
+        class="bg-gray-800 text-white w-64 py-3 rounded-xl font-bold shadow-lg hover:bg-black transition cursor-pointer shrink-0"
+      >
+        Play Again
+      </button>
+    </div>
+
+    <div
+      id="hint-screen"
+      class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex flex-col items-center justify-center p-4"
+      onclick="closeHint()"
+    >
+      <div
+        class="bg-white rounded-xl p-6 max-w-sm w-full shadow-2xl overflow-y-auto max-h-[80vh]"
+        onclick="event.stopPropagation()"
+      >
+        <h3 class="font-bold text-lg mb-4 border-b pb-2">Game Rules</h3>
+
+        <div
+          class="mb-4 bg-indigo-50 p-3 rounded text-xs text-indigo-800 space-y-2"
+        >
+          <p>
+            <strong>Phase 1 (Gravity - 90s):</strong><br />Catch falling waste
+            items (18 items).<br /><span class="text-green-600 font-bold"
+              >+10 Correct</span
+            >
+            / <span class="text-red-600 font-bold">-5 Wrong</span> /
+            <span class="text-gray-500 font-bold">0 Spill</span>
+          </p>
+          <p>
+            <strong>Speed Bonus:</strong>
+            <span class="text-green-600 font-bold">+30 Points</span> if finished
+            before 90s.
+          </p>
+          <p>
+            <strong>Phase 2 (Treatment - 30s):</strong><br />Drag bags to
+            treatment facility.<br /><span class="text-green-600 font-bold"
+              >+10 Correct</span
+            >
+            / <span class="text-red-600 font-bold">-5 Wrong</span>
+          </p>
+        </div>
+
+        <div class="text-center text-xs text-gray-500 italic">
+          <p>No hints allowed! Test your knowledge.</p>
+        </div>
+
+        <button
+          onclick="closeHint()"
+          class="mt-4 w-full bg-indigo-600 text-white py-2 rounded font-bold cursor-pointer"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // --- DATA ---
+      const yellowItems = [
+        { name: "Human Tissue", icon: "🧠" },
+        { name: "Placenta", icon: "🥩" },
+        { name: "Plaster Cast", icon: "🤕" },
+        { name: "Soiled Cotton", icon: "🩹" },
+        { name: "Blood Bag", icon: "🩸" },
+        { name: "Expired Vaccine", icon: "💉" },
+        { name: "Cytotoxic Drug", icon: "☠️" },
+        { name: "Chemical Liquid", icon: "🧪" },
+        { name: "Silver X-Ray Liq", icon: "🎞️" },
+        { name: "Formalin", icon: "⚗️" },
+        { name: "Lab Culture", icon: "🧫" },
+        { name: "Face Mask", icon: "😷" },
+        { name: "Bedding (Blood)", icon: "🛏️" },
+        { name: "Aspirated Fluid", icon: "🥤" },
+        { name: "Infected Secretion", icon: "🤧" },
+      ];
+      const redItems = [
+        { name: "Urine Bag", icon: "🛍️" },
+        { name: "IV Set", icon: "➰" },
+        { name: "IV Tube", icon: "〰️" },
+        { name: "Syringe (No Needle)", icon: "💉" },
+        { name: "Plastic Glove", icon: "🧤" },
+        { name: "Plastic Bottle", icon: "🥤" },
+        { name: "Vacutainer (Plastic)", icon: "🧪" },
+        { name: "Catheter", icon: "🐍" },
+        { name: "3-Way Stopcock", icon: "🔧" },
+        { name: "Oxygen Mask", icon: "🎭" },
+      ];
+      const whiteItems = [
+        { name: "Needle", icon: "📍" },
+        { name: "Scalpel", icon: "🔪" },
+        { name: "Surgical Blade", icon: "🗡️" },
+        { name: "Syringe+Fixed Needle", icon: "💉📍" },
+        { name: "Jelco Needle", icon: "📌" },
+        { name: "Suture Needle", icon: "🪡" },
+        { name: "Lancet", icon: "📏" },
+      ];
+      const blueItems = [
+        { name: "Broken Vial", icon: "📉" },
+        { name: "Glass Ampoule", icon: "🏺" },
+        { name: "Metal Implant", icon: "🔩" },
+        { name: "Microscope Slide", icon: "🔬" },
+        { name: "Vacutainer (Glass)", icon: "🥃" },
+        { name: "Guide Wire", icon: "⛓️" },
+      ];
+
+      // --- STATE ---
+      const STARTING_TIME = 90; // 90 seconds for Phase 1
+      const PHASE2_TIME = 30; // 30 seconds for Phase 2
+      const MAX_SCORE = 250;
+
+      let state = {
+        phase: 0,
+        score: 0,
+        timeLeft: STARTING_TIME,
+        timerId: null,
+        gravityId: null,
+        phase1Queue: [],
+        phase2Queue: [],
+        mistakes: [],
+        itemPos: { x: 0, y: 0 },
+        fallSpeed: 1,
+        dragOffset: { x: 0, y: 0 },
+        bonusEarned: false,
+      };
+
+      let currentItem = null;
+      let isDragging = false;
+
+      // Elements
+      let elTimer, elScore, dragEl, bagEl, gameArea;
+
+      window.onload = () => {
+        elTimer = document.getElementById("time-text");
+        elScore = document.getElementById("score-display");
+        dragEl = document.getElementById("draggable-item");
+        bagEl = document.getElementById("treatment-bag");
+        gameArea = document.getElementById("game-area");
+      };
+
+      function removeLandingPageAfterSomeTime(landingPageId, nextPageId) {
+        const lpi = document.getElementById(landingPageId);
+        const npi = document.getElementById(nextPageId);
+
+        if (!lpi || !npi) return;
+
+        setTimeout(() => {
+          // Hide landing page
+          lpi.classList.add("hidden");
+
+          // Show next page
+          npi.classList.remove("hidden");
+
+          // Add fixed positioning
+          npi.classList.add("fixed");
+        }, 3000); // 3 seconds
+      }
+
+      function getRandomSubarray(arr, size) {
+        let shuffled = arr.slice(0),
+          i = arr.length,
+          temp,
+          index;
+        while (i--) {
+          index = Math.floor(Math.random() * (i + 1));
+          temp = shuffled[index];
+          shuffled[index] = shuffled[i];
+          shuffled[i] = temp;
+        }
+        return shuffled.slice(0, size);
+      }
+
+      function spawnFloatingText(x, y, text, colorClass) {
+        const el = document.createElement("div");
+        el.className = `float-text ${colorClass}`;
+        el.style.left = x + "px";
+        el.style.top = y + "px";
+        el.innerText = text;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 800);
+      }
+
+      // --- PHASE 1: GRAVITY ---
+
+      function startGame() {
+        if (!dragEl) dragEl = document.getElementById("draggable-item");
+        state.score = 0;
+        state.timeLeft = STARTING_TIME;
+        state.mistakes = [];
+        state.phase = 1;
+        state.fallSpeed = 1.5;
+        state.bonusEarned = false;
+
+        // 18 Items: 6 Yellow, 4 Red, 4 White, 4 Blue
+        let deck = [];
+        getRandomSubarray(yellowItems, 6).forEach((i) =>
+          deck.push({ ...i, type: "yellow" }),
+        );
+        getRandomSubarray(redItems, 4).forEach((i) =>
+          deck.push({ ...i, type: "red" }),
+        );
+        getRandomSubarray(whiteItems, 4).forEach((i) =>
+          deck.push({ ...i, type: "white" }),
+        );
+        getRandomSubarray(blueItems, 4).forEach((i) =>
+          deck.push({ ...i, type: "blue" }),
+        );
+        state.phase1Queue = deck.sort(() => Math.random() - 0.5);
+
+        updateUI();
+
+        document.getElementById("start-screen").classList.add("hidden");
+        document.getElementById("game-over-screen").classList.add("hidden");
+        document.getElementById("bins-container").classList.remove("hidden");
+        document.getElementById("treatment-facilities").classList.add("hidden");
+        document.getElementById("phase-indicator").classList.remove("hidden");
+        document.getElementById("phase-indicator").innerText =
+          "PHASE 1: GRAVITY SORT";
+
+        if (state.timerId) clearInterval(state.timerId);
+        state.timerId = setInterval(gameTick, 1000);
+        if (elTimer) elTimer.innerText = state.timeLeft + "s";
+
+        spawnGravityItem();
+      }
+
+      function gameTick() {
+        state.timeLeft--;
+        if (elTimer) elTimer.innerText = state.timeLeft + "s";
+        if (state.timeLeft <= 0) {
+          if (state.phase === 1)
+            endPhase1(false); // No bonus if time runs out
+          else if (state.phase === 3) endGame(); // End game if Phase 2 time runs out
+        }
+      }
+
+      function spawnGravityItem() {
+        if (state.phase !== 1) return;
+        if (state.phase1Queue.length === 0) {
+          endPhase1(true); // Bonus earned!
+          return;
+        }
+
+        currentItem = state.phase1Queue.pop();
+
+        const areaWidth = gameArea.clientWidth;
+        const startX = Math.random() * (areaWidth - 100) + 20;
+
+        state.itemPos = { x: startX, y: -100 };
+
+        dragEl.style.left = state.itemPos.x + "px";
+        dragEl.style.top = state.itemPos.y + "px";
+
+        document.getElementById("item-icon").innerText = currentItem.icon;
+        document.getElementById("item-name").innerText = currentItem.name;
+        dragEl.classList.remove("hidden");
+
+        if (state.gravityId) cancelAnimationFrame(state.gravityId);
+        gravityLoop();
+      }
+
+      function gravityLoop() {
+        if (state.phase !== 1 || isDragging) return;
+
+        state.itemPos.y += state.fallSpeed;
+        dragEl.style.top = state.itemPos.y + "px";
+
+        const areaHeight = gameArea.clientHeight;
+        if (state.itemPos.y > areaHeight - 80) {
+          handleSpill();
+        } else {
+          state.gravityId = requestAnimationFrame(gravityLoop);
+        }
+      }
+
+      function handleSpill() {
+        cancelAnimationFrame(state.gravityId);
+        dragEl.classList.add("hidden");
+
+        // Score 0 for spill
+        const rect = dragEl.getBoundingClientRect();
+        spawnFloatingText(rect.left, rect.top, "Spilled!", "text-gray-500");
+
+        state.mistakes.push({
+          name: currentItem.name,
+          wrong: "Spilled (Floor)",
+          right:
+            currentItem.type.charAt(0).toUpperCase() +
+            currentItem.type.slice(1),
+        });
+
+        updateUI();
+        setTimeout(spawnGravityItem, 500);
+      }
+
+      function handleSortingDrop(binColor, x, y) {
+        dragEl.classList.add("hidden");
+        cancelAnimationFrame(state.gravityId);
+
+        if (binColor === currentItem.type) {
+          state.score += 10;
+          spawnFloatingText(x, y, "+10", "text-green-600");
+          state.fallSpeed += 0.1;
+        } else {
+          state.score -= 5;
+          spawnFloatingText(x, y, "-5", "text-red-600");
+          state.mistakes.push({
+            name: currentItem.name,
+            wrong: binColor.charAt(0).toUpperCase() + binColor.slice(1),
+            right:
+              currentItem.type.charAt(0).toUpperCase() +
+              currentItem.type.slice(1),
+          });
+        }
+
+        updateUI();
+        if (state.timeLeft > 0) setTimeout(spawnGravityItem, 300);
+      }
+
+      // --- PHASE 2 ---
+
+      function endPhase1(completed) {
+        state.phase = 2; // Transition
+        clearInterval(state.timerId);
+        cancelAnimationFrame(state.gravityId);
+        dragEl.classList.add("hidden");
+
+        if (completed) {
+          state.score += 30;
+          state.bonusEarned = true;
+        }
+
+        updateUI();
+        document.getElementById("phase2-screen").classList.remove("hidden");
+      }
+
+      function startPhase2() {
+        if (!bagEl) bagEl = document.getElementById("treatment-bag");
+        state.phase = 3; // Phase 2 Active
+        state.timeLeft = PHASE2_TIME; // Reset timer for Phase 2
+
+        document.getElementById("phase2-screen").classList.add("hidden");
+        document.getElementById("bins-container").classList.add("hidden");
+        document
+          .getElementById("treatment-facilities")
+          .classList.remove("hidden");
+        document.getElementById("phase-indicator").innerText =
+          "PHASE 2: TREATMENT";
+
+        // Reset timer display
+        if (elTimer) elTimer.innerText = state.timeLeft + "s";
+
+        // Start Timer for Phase 2
+        if (state.timerId) clearInterval(state.timerId);
+        state.timerId = setInterval(gameTick, 1000);
+
+        state.phase2Queue = ["yellow", "red", "white", "blue"].sort(
+          () => Math.random() - 0.5,
+        );
+        spawnTreatmentBag();
+      }
+
+      function spawnTreatmentBag() {
+        if (state.phase !== 3) return;
+        if (state.phase2Queue.length === 0) {
+          endGame();
+          return;
+        }
+
+        const areaWidth = gameArea.clientWidth;
+        const areaHeight = gameArea.clientHeight;
+
+        state.itemPos = { x: areaWidth / 2 - 48, y: areaHeight / 2 - 64 };
+
+        bagEl.style.left = state.itemPos.x + "px";
+        bagEl.style.top = state.itemPos.y + "px";
+
+        const type = state.phase2Queue.pop();
+        currentItem = { type: type };
+
+        const icon = document.getElementById("bag-icon");
+        const label = document.getElementById("bag-label");
+
+        if (type === "yellow") {
+          icon.className =
+            "fas fa-shopping-bag text-6xl text-yellow-400 drop-shadow-md";
+          label.innerText = "Yellow Bag";
+          label.className =
+            "mt-2 bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1 rounded shadow";
+        } else if (type === "red") {
+          icon.className =
+            "fas fa-shopping-bag text-6xl text-red-500 drop-shadow-md";
+          label.innerText = "Red Bag";
+          label.className =
+            "mt-2 bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded shadow";
+        } else if (type === "white") {
+          icon.className = "fas fa-trash text-6xl text-gray-200 drop-shadow-md";
+          label.innerText = "White Cont.";
+          label.className =
+            "mt-2 bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded shadow";
+        } else {
+          icon.className = "fas fa-box text-6xl text-blue-500 drop-shadow-md";
+          label.innerText = "Blue Box";
+          label.className =
+            "mt-2 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded shadow";
+        }
+
+        bagEl.classList.remove("hidden");
+      }
+
+      function handleTreatmentDrop(facility, x, y) {
+        bagEl.classList.add("hidden");
+        let correct = false,
+          validOptions = [];
+        const t = currentItem.type,
+          f = facility;
+
+        if (t === "yellow") {
+          validOptions = ["Incineration"];
+          if (f === "incineration") correct = true;
+        } else if (t === "red") {
+          validOptions = ["Autoclave", "Microwave"];
+          if (f === "autoclave" || f === "microwave") correct = true;
+        } else if (t === "white") {
+          validOptions = ["Autoclave", "Inertization", "Land Disposal"];
+          if (f === "autoclave" || f === "inertization" || f === "land")
+            correct = true;
+        } else if (t === "blue") {
+          validOptions = ["Chemical Disinf.", "Autoclave"];
+          if (f === "chemical" || f === "autoclave") correct = true;
+        }
+
+        if (correct) {
+          state.score += 10;
+          spawnFloatingText(x, y, "+10", "text-green-500");
+        } else {
+          state.score -= 5;
+          spawnFloatingText(x, y, "-5", "text-red-500");
+          state.mistakes.push({
+            name:
+              t.charAt(0).toUpperCase() +
+              t.slice(1) +
+              (t === "white" ? " Cont." : t === "blue" ? " Box" : " Bag"),
+            wrong: f.charAt(0).toUpperCase() + f.slice(1),
+            right: validOptions.join("/"),
+          });
+        }
+        updateUI();
+        setTimeout(
+          state.phase2Queue.length > 0 ? spawnTreatmentBag : endGame,
+          500,
+        );
+      }
+
+      function endGame() {
+        state.phase = 4;
+        clearInterval(state.timerId); // Stop timer
+        document.getElementById("final-score").innerText = state.score;
+
+        // Smiley Logic
+        const smileyEl = document.getElementById("final-smiley");
+        let s = state.score;
+        if (s > 200) smileyEl.innerText = "🤩";
+        else if (s > 100) smileyEl.innerText = "🙂";
+        else if (s > 0) smileyEl.innerText = "😐";
+        else smileyEl.innerText = "🤢";
+
+        if (state.bonusEarned)
+          document.getElementById("bonus-badge").classList.remove("hidden");
+        else document.getElementById("bonus-badge").classList.add("hidden");
+
+        document.getElementById("game-over-screen").classList.remove("hidden");
+        document.getElementById("treatment-facilities").classList.add("hidden");
+        document.getElementById("phase-indicator").classList.add("hidden");
+        renderMistakes();
+      }
+
+      function renderMistakes() {
+        const container = document.getElementById("mistakes-log");
+        container.innerHTML = "";
+        if (state.mistakes.length === 0) {
+          container.innerHTML = `<div class="text-green-600 font-bold text-center mt-8 text-lg"><i class="fas fa-star text-yellow-400 mr-2"></i>Perfect Score!</div>`;
+          return;
+        }
+        state.mistakes.forEach((m) => {
+          const item = document.createElement("div");
+          item.className = "bg-white border rounded p-2 text-xs shadow-sm";
+          item.innerHTML = `<div class="font-bold text-gray-800">${m.name}</div><div class="flex justify-between mt-1"><span class="text-red-500"><i class="fas fa-times-circle mr-1"></i>${m.wrong}</span><span class="text-green-600"><i class="fas fa-check-circle mr-1"></i>${m.right}</span></div>`;
+          container.appendChild(item);
+        });
+      }
+
+      function updateUI() {
+        if (elScore) elScore.innerText = state.score;
+      }
+      function showHint() {
+        document.getElementById("hint-screen").classList.remove("hidden");
+      }
+      function closeHint() {
+        document.getElementById("hint-screen").classList.add("hidden");
+      }
+
+      // --- DRAG LOGIC ---
+
+      function getEventPos(e) {
+        if (e.touches && e.touches.length > 0)
+          return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        return { x: e.clientX, y: e.clientY };
+      }
+
+      function startDrag(e) {
+        const target = e.target.closest(
+          state.phase === 3 ? "#treatment-bag" : "#draggable-item",
+        );
+        if (target) {
+          e.preventDefault();
+          isDragging = true;
+          const pos = getEventPos(e);
+
+          const el = state.phase === 3 ? bagEl : dragEl;
+          const rect = el.getBoundingClientRect();
+
+          state.dragOffset = {
+            x: pos.x - rect.left,
+            y: pos.y - rect.top,
+          };
+
+          if (state.phase === 1) cancelAnimationFrame(state.gravityId);
+
+          el.style.cursor = "grabbing";
+          el.style.transition = "none";
+        }
+      }
+
+      function moveDrag(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        const pos = getEventPos(e);
+
+        const areaRect = gameArea.getBoundingClientRect();
+        const el = state.phase === 3 ? bagEl : dragEl;
+
+        let newX = pos.x - areaRect.left - state.dragOffset.x;
+        let newY = pos.y - areaRect.top - state.dragOffset.y;
+
+        el.style.left = newX + "px";
+        el.style.top = newY + "px";
+
+        state.itemPos = { x: newX, y: newY };
+
+        const targets = document.querySelectorAll(
+          state.phase === 3 ? ".treatment-container" : ".bin-container",
+        );
+        targets.forEach((t) => t.classList.remove("hovered"));
+        const hit = getHitTarget(pos.x, pos.y, targets);
+        if (hit) hit.classList.add("hovered");
+      }
+
+      function endDrag(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        const el = state.phase === 3 ? bagEl : dragEl;
+        el.style.cursor = "grab";
+
+        let x, y;
+        if (e.changedTouches && e.changedTouches.length > 0) {
+          x = e.changedTouches[0].clientX;
+          y = e.changedTouches[0].clientY;
+        } else {
+          x = e.clientX;
+          y = e.clientY;
+        }
+
+        const targets = document.querySelectorAll(
+          state.phase === 3 ? ".treatment-container" : ".bin-container",
+        );
+        const hit = getHitTarget(x, y, targets);
+
+        if (hit) {
+          hit.classList.remove("hovered");
+          if (state.phase === 1) handleSortingDrop(hit.dataset.color, x, y);
+          else if (state.phase === 3)
+            handleTreatmentDrop(hit.dataset.target, x, y);
+        } else {
+          if (state.phase === 1) {
+            gravityLoop();
+          } else {
+            const areaWidth = gameArea.clientWidth;
+            const areaHeight = gameArea.clientHeight;
+            state.itemPos = { x: areaWidth / 2 - 48, y: areaHeight / 2 - 64 };
+            el.style.left = state.itemPos.x + "px";
+            el.style.top = state.itemPos.y + "px";
+          }
+        }
+      }
+
+      function getHitTarget(x, y, list) {
+        let hit = null;
+        list.forEach((item) => {
+          const rect = item.getBoundingClientRect();
+          if (
+            x >= rect.left &&
+            x <= rect.right &&
+            y >= rect.top &&
+            y <= rect.bottom
+          )
+            hit = item;
+        });
+        return hit;
+      }
+
+      window.addEventListener("mousedown", startDrag);
+      window.addEventListener("mousemove", moveDrag);
+      window.addEventListener("mouseup", endDrag);
+      window.addEventListener("touchstart", startDrag, { passive: false });
+      window.addEventListener("touchmove", moveDrag, { passive: false });
+      window.addEventListener("touchend", endDrag);
+    </script>
+  </body>
+</html>
