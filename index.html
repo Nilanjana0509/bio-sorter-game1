@@ -157,6 +157,7 @@
     </style>
   </head>
   <body class="flex flex-col relative">
+    <!-- landing page -->
     <div
       id="landing-page"
       class="min-h-screen flex items-center justify-center"
@@ -529,8 +530,241 @@
       </div>
     </div>
 
+    <!-- subscriptions related modals -->
+    <div
+      id="subscribe-modal"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+    >
+      <div
+        class="w-[360px] rounded-2xl bg-white p-6 shadow-xl transform scale-95 transition-all duration-200"
+      >
+        <h2 class="text-xl font-semibold text-amber-950">
+          Access Restricted! 🚫
+        </h2>
+
+        <p class="mt-2 text-amber-900">
+          To play ahead, you have to subscribe to the software.
+        </p>
+
+        <div class="mt-6 flex gap-3">
+          <button
+            id="subscribe-btn"
+            class="flex-1 rounded-lg bg-amber-900 py-2.5 text-white transition hover:bg-amber-950"
+            onclick="openSubscriptionModal()"
+          >
+            Subscribe
+          </button>
+
+          <button
+            id="exit-btn"
+            class="flex-1 rounded-lg bg-amber-800 py-2.5 text-white hover:bg-amber-900 transition"
+            onclick="existFromSubscriptionModal()"
+          >
+            Exit
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="subscription-modal"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+    >
+      <div
+        id="subscription-modal-content"
+        class="w-[380px] rounded-2xl bg-white p-6 shadow-xl transform scale-95 transition-all duration-200"
+      >
+        <!-- Header -->
+        <h2 class="text-xl font-semibold text-amber-950">
+          Choose Your Subscription 💳
+        </h2>
+        <p class="mt-2 text-sm text-amber-900">
+          Select a plan to continue using the software. Click on the plan of
+          your choice.
+        </p>
+
+        <!-- Plans Container -->
+        <div id="plans-container" class="mt-5 space-y-3"></div>
+
+        <!-- Actions -->
+        <div class="mt-6 flex gap-3">
+          <button
+            id="exit-subscription"
+            class="flex-1 rounded-lg bg-amber-800 py-2.5 text-white transition hover:bg-amber-900"
+            onclick="existFromSubscriptionModal()"
+          >
+            Exit
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="signup-modal"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+    >
+      <div
+        id="signup-content"
+        class="w-[480px] max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+      >
+        <h2 class="text-xl font-semibold text-amber-950">Sign Up</h2>
+        <p class="mt-2 text-amber-900">Create an account to get started.</p>
+
+        <div class="mt-6 space-y-3">
+          <div>
+            <input
+              id="name"
+              placeholder="Name"
+              class="w-full rounded-lg border px-3 py-2 focus:border-amber-900 focus:ring-1 focus:ring-amber-900"
+            />
+            <p id="error-name" class="mt-1 text-sm text-red-500 hidden"></p>
+          </div>
+
+          <div>
+            <input
+              id="email"
+              type="email"
+              placeholder="Email"
+              class="w-full rounded-lg border px-3 py-2 focus:border-amber-900 focus:ring-1 focus:ring-amber-900"
+            />
+            <p id="error-email" class="mt-1 text-sm text-red-500 hidden"></p>
+          </div>
+
+          <div>
+            <input
+              id="password"
+              type="password"
+              placeholder="Password"
+              class="w-full rounded-lg border px-3 py-2 focus:border-amber-900 focus:ring-1 focus:ring-amber-900"
+            />
+            <p id="error-password" class="mt-1 text-sm text-red-500 hidden"></p>
+          </div>
+
+          <div>
+            <input
+              id="number"
+              type="text"
+              placeholder="Mobile Number"
+              class="w-full rounded-lg border px-3 py-2 focus:border-amber-900 focus:ring-1 focus:ring-amber-900"
+            />
+            <p id="error-number" class="mt-1 text-sm text-red-500 hidden"></p>
+          </div>
+
+          <div>
+            <input
+              id="address"
+              placeholder="Address"
+              class="w-full rounded-lg border px-3 py-2 focus:border-amber-900 focus:ring-1 focus:ring-amber-900"
+            />
+            <p id="error-address" class="mt-1 text-sm text-red-500 hidden"></p>
+          </div>
+
+          <input
+            id="profession"
+            placeholder="Profession / Student"
+            class="w-full rounded-lg border px-3 py-2 focus:border-amber-900 focus:ring-1 focus:ring-amber-900"
+          />
+
+          <input
+            id="institution"
+            placeholder="Institution / University"
+            class="w-full rounded-lg border px-3 py-2 focus:border-amber-900 focus:ring-1 focus:ring-amber-900"
+          />
+        </div>
+
+        <button
+          id="signup-submit"
+          class="mt-6 w-full rounded-lg bg-amber-900 py-2.5 font-medium text-white hover:bg-amber-950"
+        >
+          Sign Up
+        </button>
+
+        <button
+          id="signup-back"
+          class="mt-3 w-full rounded-lg bg-gray-100 py-2 font-medium text-gray-700 hover:bg-gray-200"
+        >
+          Back
+        </button>
+      </div>
+    </div>
+
+    <div
+      id="payment-modal"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+    >
+      <div
+        id="payment-content"
+        class="w-[360px] rounded-2xl bg-white p-6 shadow-xl"
+      >
+        <h2 class="text-xl font-semibold text-amber-950">
+          Complete Payment 💰
+        </h2>
+        <p class="mt-2 text-sm text-amber-900">
+          Scan the QR and enter your transaction ID
+        </p>
+
+        <!-- QR Code -->
+        <div class="mt-4 flex justify-center">
+          <img
+            id="payment-qr"
+            class="h-48 w-48 rounded-lg border border-amber-200"
+          />
+        </div>
+
+        <!-- UPI Info -->
+        <p class="mt-2 text-center text-xs text-amber-800">
+          UPI ID: <span id="upi-id" class="font-medium"></span>
+        </p>
+
+        <!-- Transaction ID -->
+        <div class="mt-4">
+          <label class="mb-1 block text-sm font-medium text-amber-900">
+            Transaction ID
+          </label>
+          <input
+            id="transaction-id"
+            type="text"
+            placeholder="Enter UPI Transaction ID"
+            class="w-full rounded-lg border border-amber-300 px-3 py-2 text-sm focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-200"
+          />
+        </div>
+
+        <!-- Buttons -->
+        <div class="mt-6 flex gap-3">
+          <button
+            id="payment-submit"
+            class="flex-1 rounded-lg bg-amber-900 py-2.5 text-white hover:bg-amber-950"
+            onclick="submitPayment()"
+          >
+            Submit
+          </button>
+
+          <button
+            id="payment-exit"
+            class="flex-1 rounded-lg bg-amber-800 py-2.5 text-white hover:bg-amber-900"
+          >
+            Exit
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script>
       // --- DATA ---
+      const BANKDETAILS = {
+        upiId: "chaudhuri.nil@okicici",
+        payeeName: "Subscription",
+        paymentMode: "INR",
+      };
+
+      let currentPlan = null;
+      let currentUserId = null;
+
+      const VITE_API_URL = "https://snake-bite-game-backend.vercel.app/api";
+      // const VITE_API_URL = "http://localhost:3030/api";
+
+      let allowPermission = false;
+
       const yellowItems = [
         { name: "Human Tissue", icon: "🧠" },
         { name: "Placenta", icon: "🥩" },
@@ -577,7 +811,11 @@
         { name: "Vacutainer (Glass)", icon: "🥃" },
         { name: "Guide Wire", icon: "⛓️" },
       ];
-
+      const PLANS = [
+        { id: 1, title: "1 Month", price: 149, displayPrice: "₹149" },
+        { id: 2, title: "6 Months", price: 749, displayPrice: "₹749" },
+        { id: 3, title: "1 Year", price: 1499, displayPrice: "₹1499" },
+      ];
       // --- STATE ---
       const STARTING_TIME = 90; // 90 seconds for Phase 1
       const PHASE2_TIME = 30; // 30 seconds for Phase 2
@@ -610,7 +848,41 @@
         dragEl = document.getElementById("draggable-item");
         bagEl = document.getElementById("treatment-bag");
         gameArea = document.getElementById("game-area");
+        removeLandingPageAfterSomeTime("landing-page", "start-screen");
+        verifyPasskey();
       };
+      async function verifyPasskey() {
+        // Get passkey from URL
+        const params = new URLSearchParams(window.location.search);
+        const passkey = params.get("passkey");
+
+        if (!passkey) {
+          console.log("No passkey found");
+          return;
+        }
+
+        try {
+          const response = await fetch(`${VITE_API_URL}/users/check`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${passkey}`,
+            },
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            allowPermission = false;
+            return;
+          }
+
+          allowPermission = true;
+        } catch (error) {
+          console.error("Error:", error);
+          allowPermission = false;
+        }
+      }
 
       function removeLandingPageAfterSomeTime(landingPageId, nextPageId) {
         const lpi = document.getElementById(landingPageId);
@@ -658,6 +930,7 @@
 
       function startGame() {
         if (!dragEl) dragEl = document.getElementById("draggable-item");
+        state.droppedCount = 0;
         state.score = 0;
         state.timeLeft = STARTING_TIME;
         state.mistakes = [];
@@ -751,6 +1024,15 @@
         cancelAnimationFrame(state.gravityId);
         dragEl.classList.add("hidden");
 
+        state.droppedCount++;
+
+        if (state.droppedCount === 1) {
+          if (!allowPermission) {
+            addSubscribeRestrictions();
+            return;
+          }
+        }
+
         // Score 0 for spill
         const rect = dragEl.getBoundingClientRect();
         spawnFloatingText(rect.left, rect.top, "Spilled!", "text-gray-500");
@@ -773,10 +1055,18 @@
 
         if (binColor === currentItem.type) {
           state.score += 10;
+          if (!allowPermission) {
+            addSubscribeRestrictions();
+            return;
+          }
           spawnFloatingText(x, y, "+10", "text-green-600");
           state.fallSpeed += 0.1;
         } else {
           state.score -= 5;
+          if (!allowPermission) {
+            addSubscribeRestrictions();
+            return;
+          }
           spawnFloatingText(x, y, "-5", "text-red-600");
           state.mistakes.push({
             name: currentItem.name,
@@ -1083,6 +1373,215 @@
         return hit;
       }
 
+      // subscription related functions
+      function addSubscribeRestrictions() {
+        const modal = document.getElementById("subscribe-modal");
+        modal.classList.remove("hidden");
+      }
+
+      function existFromSubscriptionModal() {
+        window.location.href = "https://www.google.com";
+      }
+
+      function openSubscriptionModal() {
+        const subscribe_modal = document.getElementById("subscribe-modal");
+        subscribe_modal.classList.add("hidden");
+        const modal = document.getElementById("subscription-modal");
+        modal.classList.remove("hidden");
+
+        renderPlans();
+
+        // Optional animation
+        setTimeout(() => {
+          document
+            .getElementById("subscription-modal-content")
+            .classList.remove("scale-95");
+        }, 10);
+      }
+
+      function renderPlans() {
+        const container = document.getElementById("plans-container");
+        container.innerHTML = "";
+
+        PLANS.forEach((plan) => {
+          const div = document.createElement("div");
+          div.className =
+            "flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 hover:border-amber-400 transition cursor-pointer";
+
+          div.innerHTML = `
+            <div>
+              <p class="font-medium text-amber-950">${plan.title}</p>
+              <p class="text-xs text-amber-800">Subscription</p>
+            </div>
+            <div class="text-lg font-semibold text-amber-900">
+              ${plan.displayPrice}
+            </div>
+          `;
+
+          div.addEventListener("click", () => {
+            openSignupModal(plan);
+          });
+
+          container.appendChild(div);
+        });
+      }
+
+      function openSignupModal(plan) {
+        currentPlan = plan;
+        document.getElementById("signup-modal").classList.remove("hidden");
+      }
+
+      function openPaymentModal() {
+        // currentPlan = plan;
+        // currentUserId = userId;
+
+        generateQRCode(currentPlan);
+
+        document.getElementById("upi-id").textContent = BANKDETAILS.upiId;
+
+        document.getElementById("payment-modal").classList.remove("hidden");
+      }
+
+      function generateQRCode(plan) {
+        if (!plan || !plan.price) return;
+
+        const upiString =
+          `upi://pay?pa=${BANKDETAILS.upiId}` +
+          `&pn=${encodeURIComponent(BANKDETAILS.payeeName)}` +
+          `&am=${encodeURIComponent(plan.price)}` +
+          `&cu=INR` +
+          `&tn=${encodeURIComponent("Subscription " + plan.title)}`;
+
+        const qrUrl =
+          `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=` +
+          encodeURIComponent(upiString);
+
+        document.getElementById("payment-qr").src = qrUrl;
+      }
+
+      async function registerUser(userData) {
+        try {
+          const response = await fetch(`${VITE_API_URL}/users/register`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(userData),
+          });
+
+          const result = await response.json();
+
+          if (!response.ok) {
+            throw new Error(result.message || "Something went wrong");
+          }
+
+          return result;
+        } catch (error) {
+          throw error;
+        }
+      }
+
+      async function submitPayment() {
+        const txnId = document.getElementById("transaction-id").value.trim();
+
+        if (!txnId) {
+          alert("Please enter transaction ID");
+          return;
+        }
+
+        try {
+          const response = await fetch(`${VITE_API_URL}/payment/subscription`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: currentUserId,
+              amount: currentPlan.price,
+              duration: currentPlan.title,
+              type: "family_dietary_requirement_calculator",
+              subscriptionAt: Date.now().toString(),
+              transactionId: txnId,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            alert(data.message || "Payment submission failed");
+            return;
+          }
+
+          alert("Payment submitted successfully. Waiting for verification ✅");
+          // closePaymentModal();
+        } catch (error) {
+          console.error("Payment API error:", error);
+          alert("Something went wrong. Please try again.");
+        }
+      }
+
+      document
+        .getElementById("signup-submit")
+        .addEventListener("click", async function () {
+          const name = document.getElementById("name").value.trim();
+          const email = document.getElementById("email").value.trim();
+          const password = document.getElementById("password").value.trim();
+          const number = document.getElementById("number").value.trim();
+          const address = document.getElementById("address").value.trim();
+          const profession = document.getElementById("profession").value.trim();
+          const institution = document
+            .getElementById("institution")
+            .value.trim();
+
+          let hasError = false;
+
+          function showError(id, message) {
+            const el = document.getElementById("error-" + id);
+            el.innerText = message;
+            el.classList.remove("hidden");
+            hasError = true;
+          }
+
+          function clearErrors() {
+            ["name", "email", "password", "number", "address"].forEach(
+              (field) => {
+                document
+                  .getElementById("error-" + field)
+                  .classList.add("hidden");
+              },
+            );
+          }
+
+          clearErrors();
+
+          if (!name) showError("name", "Name is required");
+          if (!email) showError("email", "Email is required");
+          if (!password) showError("password", "Password is required");
+          if (!number) showError("number", "Mobile number is required");
+          if (!address) showError("address", "Address is required");
+
+          if (!hasError) {
+            const userData = {
+              user_name: name,
+              user_email: email,
+              user_password: password,
+              user_number: number,
+              user_address: address,
+              user_profession: profession,
+              user_institution: institution,
+            };
+
+            try {
+              const response = await registerUser(userData);
+              currentUserId = response.user.id;
+              alert("Signup Successful 🎉");
+              openPaymentModal();
+              // closeSignupModal();
+            } catch (error) {
+              alert("Error: " + error.message);
+            }
+          }
+        });
       window.addEventListener("mousedown", startDrag);
       window.addEventListener("mousemove", moveDrag);
       window.addEventListener("mouseup", endDrag);
