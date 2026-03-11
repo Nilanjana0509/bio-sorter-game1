@@ -161,14 +161,16 @@
     <!-- landing page -->
     <div
       id="landing-page"
-      class="min-h-screen flex items-center justify-center"
+      class="min-h-screen w-full flex items-center justify-center bg-gray-100"
     >
-      <div class="bg-white p-10 rounded-3xl shadow-2xl text-center">
+      <div
+        class="bg-white w-full max-w-6xl p-10 rounded-3xl shadow-2xl text-center"
+      >
         <!-- Image -->
         <img
           src="./company-logo.jpg"
           alt="Landing Image"
-          class="w-64 md:w-96 mx-auto object-contain"
+          class="w-full max-w-3xl mx-auto object-contain"
         />
       </div>
     </div>
@@ -932,6 +934,7 @@
       function startGame() {
         if (!dragEl) dragEl = document.getElementById("draggable-item");
         state.droppedCount = 0;
+        state.addCount = 0;
         state.score = 0;
         state.timeLeft = STARTING_TIME;
         state.mistakes = [];
@@ -1027,7 +1030,7 @@
 
         state.droppedCount++;
 
-        if (state.droppedCount === 1) {
+        if (state.droppedCount === 4) {
           if (!allowPermission) {
             addSubscribeRestrictions();
             return;
@@ -1056,7 +1059,8 @@
 
         if (binColor === currentItem.type) {
           state.score += 10;
-          if (!allowPermission) {
+          state.addCount += 1;
+          if (state.addCount >= 4 && !allowPermission) {
             addSubscribeRestrictions();
             return;
           }
@@ -1064,7 +1068,8 @@
           state.fallSpeed += 0.1;
         } else {
           state.score -= 5;
-          if (!allowPermission) {
+          state.addCount += 1;
+          if (state.addCount >= 4 && !allowPermission) {
             addSubscribeRestrictions();
             return;
           }
