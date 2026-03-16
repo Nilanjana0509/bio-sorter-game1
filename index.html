@@ -814,10 +814,23 @@
         { name: "Vacutainer (Glass)", icon: "🥃" },
         { name: "Guide Wire", icon: "⛓️" },
       ];
+
       const PLANS = [
-        { id: 1, title: "1 Month", price: 149, displayPrice: "₹149" },
-        { id: 2, title: "6 Months", price: 749, displayPrice: "₹749" },
-        { id: 3, title: "1 Year", price: 1499, displayPrice: "₹1499" },
+        { id: 1, title: "1 Month", price: 299, displayPrice: "₹299", text: "" },
+        {
+          id: 2,
+          title: "6 Months",
+          price: 1499,
+          displayPrice: "₹1499",
+          text: "Pay for 5 months and Play for 6 months",
+        },
+        {
+          id: 3,
+          title: "1 Year",
+          price: 2999,
+          displayPrice: "₹2999",
+          text: "Pay for 10 months and Play for 12 months",
+        },
       ];
       // --- STATE ---
       const STARTING_TIME = 90; // 90 seconds for Phase 1
@@ -1390,19 +1403,21 @@
       }
 
       function openSubscriptionModal() {
-        const subscribe_modal = document.getElementById("subscribe-modal");
-        subscribe_modal.classList.add("hidden");
-        const modal = document.getElementById("subscription-modal");
-        modal.classList.remove("hidden");
+        window.location.href =
+          "https://nilanjana0509.github.io/Subscription-Module?gameName=bio-sorter";
+        // const subscribe_modal = document.getElementById("subscribe-modal");
+        // subscribe_modal.classList.add("hidden");
+        // const modal = document.getElementById("subscription-modal");
+        // modal.classList.remove("hidden");
 
-        renderPlans();
+        // renderPlans();
 
-        // Optional animation
-        setTimeout(() => {
-          document
-            .getElementById("subscription-modal-content")
-            .classList.remove("scale-95");
-        }, 10);
+        // // Optional animation
+        // setTimeout(() => {
+        //   document
+        //     .getElementById("subscription-modal-content")
+        //     .classList.remove("scale-95");
+        // }, 10);
       }
 
       function renderPlans() {
@@ -1416,8 +1431,9 @@
 
           div.innerHTML = `
             <div>
+              <p class="text-xs text-amber-800">${plan.text}</p>
               <p class="font-medium text-amber-950">${plan.title}</p>
-              <p class="text-xs text-amber-800">Subscription</p>
+              <p class="text-xs text-amber-800">(Inclusive of Snake Bite game, Bio Sorter, +3 other quizes on Community Medicine)</p>
             </div>
             <div class="text-lg font-semibold text-amber-900">
               ${plan.displayPrice}
